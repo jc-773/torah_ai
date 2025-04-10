@@ -7,6 +7,10 @@ from pymongo import MongoClient
 
 openai.ap_key = os.environ.get("OPENAI_API_KEY")
 model = "text-embedding-3-small"
+uri = os.getenv("MONGO_URI")
+client = MongoClient(uri)
+db = client["torahdb"]
+collection = db["genesis_embeddings"]
 
 def fetch_data():
     response = requests.get("https://www.sefaria.org/api/texts/Genesis.1?lang=english")
@@ -24,33 +28,39 @@ def fetch_data():
         print(f"Genesis 1:{i} - {verse}")
 
 def create_embeddings(verse):
-    print("creating embeddings...")
-    response = openai.embeddings.create(
-        input=[verse],
-        model=model
-    )
-    embedding = response.data[0].embedding
-    connect_db(verse, embedding)
+    existing = collection.find_one({"text": verse})
+    if existing:
+        print("Embedding already exists for this verse. Done.")
+    else:
+        print("creating embeddings...")
+        response = openai.embeddings.create(
+            input=[verse],
+            model=model
+        )
+        embedding = response.data[0].embedding
+        insert_embeddings(verse, embedding, collection)
     
-    #print("embeddings: " + embedding[0])
-    
-def connect_db(verse, embedding):
-    uri = "mongodb+srv://<username>:<password>@cluster0.mongodb.net/?retryWrites=true&w=majority"
-    client = MongoClient(uri)
-    db = client["torahdb"]
-    collection = db["genesis_embeddings"]
-    insert_embeddings(verse, embedding, collection)
 
 def insert_embeddings(verse, embedding, collection):
-    collection.insert_one({
-        "text": verse,
-        "embedding": embedding,
-        "source": "Genesis"
-    })
-    verify_with_readback()
+    # Check if the verse already exists in the collection
+    existing = collection.find_one({"text": verse})
+    
+    if existing:
+        print("Embedding already exists for this verse. Skipping.")
+    else:
+        collection.insert_one({
+            "text": verse,
+            "embedding": embedding,
+            "source": "Genesis"
+        })
+        print("Embedding inserted for new verse.")
+        
 
+#HELPER
 def verify_with_readback(collection):
-    doc = collection.find_one({"source": "Genesis 1:1"})
-    print(doc)
+    doc = collection.find_one({"source": "Genesis"})
+    print(f"verify: ", doc)
+    
+
     
 fetch_data()
