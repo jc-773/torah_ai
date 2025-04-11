@@ -9,7 +9,6 @@ uri = os.getenv("MONGO_URI")
 client = MongoClient(uri)
 db = client["torahdb"]
 collection = db["genesis_embeddings"]
-#query = "What happened on the first day of creation?"
 
 def vector_search_query(query):
     print(f"query: ", query)
@@ -35,7 +34,7 @@ def search_similar_verses(query_embedding, limit=5):
 
 def build_prompt(contexts, question):
     context_text = "\n".join([f"- {doc['text']}" for doc in contexts])
-    prompt = f"""You're a friendly Jewish centric teacher explaining the Torah to a child.
+    prompt = f"""You're a friendly Jewish centric teacher with focus on covenant, law, and Jewish identity while explaining the Torah to a child.
     
         Context:
         {context_text}
