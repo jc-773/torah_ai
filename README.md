@@ -1,9 +1,9 @@
 #torahAI - front end 
 
 ## Background
-This is the very basic chat UI for torahAI
+This is the very basic chat UI for torahAI - I used python and streamlit to build it (https://docs.streamlit.io/)
   - the backend can be found in the torahAI_backend repository
-I used python and streamlit to build it (https://docs.streamlit.io/)
+
 
 
 ## Environment setup
