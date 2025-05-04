@@ -1,23 +1,28 @@
 import os
-import openai 
+import openai
 import requests
 from pymongo import MongoClient
 
-openai.ap_key = os.environ.get("OPENAI_API_KEY")
+# Load environment variables
+openai.api_key = os.getenv("OPENAI_API_KEY")
 model = "text-embedding-3-small"
 uri = os.getenv("MONGO_URI")
+
+# Connect to MongoDB
 client = MongoClient(uri)
 db = client["torahdb"]
 collection = db["genesis_embeddings"]
 
+# Generate embedding for the query
 def vector_search_query(query):
-    print(f"query: ", query)
+    print(f"query: {query}")
     response = openai.embeddings.create(
-            input=query,
-            model=model
-        )
+        input=query,
+        model=model
+    )
     return response.data[0].embedding
-    
+
+# Perform vector search on MongoDB Atlas
 def search_similar_verses(query_embedding, limit=5):
     results = collection.aggregate([
         {
@@ -26,32 +31,32 @@ def search_similar_verses(query_embedding, limit=5):
                 "path": "embedding",
                 "numCandidates": 100,
                 "limit": limit,
-                "index": "vector_index" 
+                "index": "vector_index"  # Update with your actual index name
             }
         }
     ])
     return list(results)
 
+# Build prompt to send to OpenAI
 def build_prompt(contexts, question):
     context_text = "\n".join([f"- {doc['text']}" for doc in contexts])
-    prompt = f"""You're a friendly Jewish centric teacher with focus on covenant, law, and Jewish identity while explaining the Torah to a child.
-    
-        Context:
-        {context_text}
+    prompt = f"""You're a friendly Jewish centric teacher explaining the Torah to a child.
 
-        Question:
-        {question}
+Context:
+{context_text}
 
-        Answer in a way that's simple, clear, and easy for a kid to understand:"""
-        
+Question:
+{question}
+
+Answer in a way that's simple, clear, and easy for a kid to understand:"""
     return prompt
-        
-    
-        
+
+# Ask OpenAI with the constructed prompt
 def ask_openai(prompt):
     response = openai.chat.completions.create(
-        model="gpt-4",  # or gpt-3.5-turbo
+        model="gpt-4",
         messages=[{"role": "user", "content": prompt}],
     )
-    print(f"openai's response = ", response.choices[0].message.content)
-    return response.choices[0].message.content
+    reply = response.choices[0].message.content
+    print("openai's response =", reply)
+    return reply

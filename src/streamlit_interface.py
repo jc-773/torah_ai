@@ -1,8 +1,8 @@
-import query_embeddings as qe
 import streamlit as st
 import requests
 import openai 
 import os
+import query_embeddings as qe
 
 st.title("TorahAI")
 
@@ -28,13 +28,12 @@ def handle_chat():
         st.session_state.messages.append({"role": "user", "content": user_input})
         st.chat_message("user").write(user_input)
 
-        ## this can all be consumed from a java backend in a response obj
         with st.spinner("Thinking... 🧠"):
-            response = fetch_data(user_input)
-            # result = qe.vector_search_query(user_input) 
-            # similar_verses = qe.search_similar_verses(result)
-            # build_prompt = qe.build_prompt(similar_verses, user_input)
-            # response = qe.ask_openai(build_prompt)
+            #response = fetch_data(user_input)
+            result = qe.vector_search_query(user_input) 
+            similar_verses = qe.search_similar_verses(result)
+            build_prompt = qe.build_prompt(similar_verses, user_input)
+            response = qe.ask_openai(build_prompt)
 
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.chat_message("assistant").write(response)
