@@ -29,11 +29,7 @@ def handle_chat():
         st.chat_message("user").write(user_input)
 
         with st.spinner("Thinking... 🧠"):
-            #response = fetch_data(user_input)
-            result = qe.vector_search_query(user_input) 
-            similar_verses = qe.search_similar_verses(result)
-            build_prompt = qe.build_prompt(similar_verses, user_input)
-            response = qe.ask_openai(build_prompt)
+            response = fetch_data(user_input)
 
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.chat_message("assistant").write(response)
