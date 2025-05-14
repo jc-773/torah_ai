@@ -2,21 +2,44 @@ import streamlit as st
 import requests
 import openai 
 import os
-import query_embeddings as qe
 
-st.title("TorahAI")
-
+role = st.sidebar.selectbox("Assistant personality", ["Kid-friendly", "Scholarly", "Storyteller"])#TODO
 
 def main():
+    init_ui()
     init_session_state()
     display_chat_history()
     handle_chat()
+    
+def init_ui():
+    st.title("TorahAI")
+    st.toast("Welcome to TorahAI! Ask me anything about the Torah.", icon="👋")
+    with st.sidebar:
+        st.header("About TorahAI")
+        st.markdown("""
+        <style>
+            body {
+                background-color: #fcf8f3;
+            }
+            .stChatMessage {
+                border-radius: 10px;
+                padding: 10px;
+            }
+            .stChatMessage.user {
+                background-color: #dceefb;
+            }
+            .stChatMessage.assistant {
+                background-color: #fff9e6;
+            }
+        </style>
+        """, unsafe_allow_html=True)
 
 def init_session_state():
     if "messages" not in st.session_state:
         st.session_state.messages = [
-            {"role": "system", "content": "You're a helpful Torah teacher for kids."}
+            {"role": role, "content": "You're a helpful Torah teacher for kids."}
         ]
+       
 
 def display_chat_history():
     for msg in st.session_state.messages[1:]:  # 1 skips system prompt
@@ -25,17 +48,25 @@ def display_chat_history():
 def handle_chat():
     user_input = st.chat_input("Ask me a question about the Torah")
     if user_input:
-        st.session_state.messages.append({"role": "user", "content": user_input})
+        st.session_state.messages.append({"role": role, "content": user_input})
         st.chat_message("user").write(user_input)
 
-        with st.spinner("Thinking... 🧠"):
+        with st.spinner("📜..."):
             response = fetch_data(user_input)
+            
 
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        st.chat_message("assistant").write(response)
+        query_text = response.get("queryResponse")
+        image_url = response.get("imageResponse")
+
+        # Display the assistant's answer
+        st.chat_message("assistant").write(query_text)
+
+        # Display the image if available
+        if image_url:
+            st.image(image_url, caption="AI-generated illustration")
         
 def fetch_data(user_input):
-        url = "http://localhost:8080/query"
+        url = "http://localhost:8080/query?role=" + role
         payload = {
                 "model": "gpt-3.5-turbo",
                 "input": user_input,
@@ -47,9 +78,13 @@ def fetch_data(user_input):
             "Content-Type": "application/json",
             "Authorization": "Bearer " + os.environ.get("OPENAI_API_KEY")
         }
+        
+        # params = {
+        #     "role":role
+        # }
 
         response = requests.post(url, json=payload, headers=headers)
-        return response.text
+        return response.json()
 
 if __name__ == "__main__":
     main()
