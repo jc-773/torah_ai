@@ -6,7 +6,7 @@ from pymongo import MongoClient
 # Load environment variables
 openai.api_key = os.getenv("OPENAI_API_KEY")
 model = "text-embedding-3-small"
-uri = os.getenv("MONGO_URI")
+uri = os.getenv("MONGO_ATLAS_URL")
 
 # Connect to MongoDB
 client = MongoClient(uri)
