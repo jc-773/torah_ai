@@ -15,9 +15,7 @@ def main():
 def init_ui():
     st.title("TorahAI")
     st.toast("Welcome to TorahAI! Ask me anything about the Torah.", icon="👋")
-    with st.sidebar:
-        st.header("About TorahAI")
-        st.markdown("""
+    st.markdown("""
         <style>
             body {
                 background-color: #fcf8f3;
@@ -33,7 +31,10 @@ def init_ui():
                 background-color: #fff9e6;
             }
         </style>
-        """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+    with st.sidebar:
+        st.header("About TorahAI")
+       
 
 def init_session_state():
     if "messages" not in st.session_state:
@@ -61,7 +62,7 @@ def handle_chat():
         
         if images == "Answers with images":
             with st.spinner("📷..."):
-                image_response = fetch_image_data(response)
+                image_response = fetch_image_data(user_input)
                 st.image(image_response, caption="AI-generated illustration")
         
 def fetch_data(user_input):
