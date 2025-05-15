@@ -3,7 +3,8 @@ import requests
 import openai 
 import os
 
-role = st.sidebar.selectbox("Assistant personality", ["Kid-friendly", "Scholarly", "Storyteller"])#TODO
+role = st.sidebar.selectbox("Assistant personality", ["Kid-friendly", "Scholarly", "Storyteller"])
+images = st.sidebar.selectbox("Image mode", ["Answers with images", "Answers without images"])
 
 def main():
     init_ui()
@@ -53,17 +54,15 @@ def handle_chat():
 
         with st.spinner("📜..."):
             response = fetch_data(user_input)
+            print(response)
             
 
-        query_text = response.get("queryResponse")
-        image_url = response.get("imageResponse")
-
-        # Display the assistant's answer
-        st.chat_message("assistant").write(query_text)
-
-        # Display the image if available
-        if image_url:
-            st.image(image_url, caption="AI-generated illustration")
+        st.chat_message("assistant").write(response)
+        
+        if images == "Answers with images":
+            with st.spinner("📷..."):
+                image_response = fetch_image_data(response)
+                st.image(image_response, caption="AI-generated illustration")
         
 def fetch_data(user_input):
         url = "http://localhost:8080/query?role=" + role
@@ -84,7 +83,15 @@ def fetch_data(user_input):
         # }
 
         response = requests.post(url, json=payload, headers=headers)
-        return response.json()
+        return response.text
+    
+def fetch_image_data(queryResponse):
+        url = "http://localhost:8080/query/image?role=" + role
+        payload = {
+            "queryResponse": queryResponse 
+        }
+        response = requests.post(url, json=payload)
+        return response.text
 
 if __name__ == "__main__":
     main()
