@@ -1,20 +1,35 @@
-#torahAI - front end 
+# torahAI - front end 
 
 ## Background
-This is the very basic chat UI for torahAI - I used python and streamlit to build it (https://docs.streamlit.io/)
-  - the backend can be found in the torahAI_backend repository
+  - This is a simple RAG application that leverages streamlit for the UI and an orchestration layer I created as the backend (ultimately hitting to openAI)
 
+
+## Backend Application and how it works
+### RAG
+  - Using the OpenAI embeddings endpoint, I generate embeddings (vectors) from the query received in the streamlit chat 
+  - Using Mongo Atlas, I do a vector search with the generated vectors from step one. This will find similar vectors that I have stored in Atlas
+  - It is important to know that by using the Sefaria API (https://developers.sefaria.org/reference/getting-started), I was able to store each line of each book as a chunck in Atlas. With each chunck having its own embedding
+  - Enabling the $vectorSearch feature in Mongo Atlas, I was able to find similar embeddings to the ones generated from the chat query
+  - I take the similar embeddings and build a prompt
+  - I take the prompt and pass it to the OpenAI chat endpoint to generate a child friendly answer
+
+### Other things about the backend
+  - The chat responses are relatively low latency, which is great. I was able to achieve a less than 2000 millisecond response by using Java's Completable Futures and a singleton virtual thread
+  - This basically running the whole RAG process in parallel and not sequential
 
 
 ## Environment setup
 Create a virtual environment for your Python project
-python3 -m venv env_name
-Activate the newly created environment - source env_name/bin/activate
-Once your env is up and running, you can install your packages - pip install package_name
+  - python3 -m venv env_name
+  - Activate the newly created environment - source env_name/bin/activate
+  - Once your env is up and running, you can install your packages - pip install package_name
 
 ## Running a streamlit project
-Navigate to the root directory of the project
-cd project_name
-Run the project with the following command - streamlit run project_name.py
-This will open a tab in your default browser
+  - Navigate to the root directory of the project
+  - cd project_name
+  - Run the project with the following command - streamlit run main_file.py
+  - This will open a tab in your default browser with a chat session
+
+## What next?
+  - Hopefully the generated images with the responses stop being weird
 
