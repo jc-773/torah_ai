@@ -14,9 +14,8 @@
   - I take the prompt and pass it to the OpenAI chat endpoint to generate a child friendly answer
 
 ### Other things about the backend
-  - The chat responses are relatively low latency, which is great. I was able to achieve a less than 2000 millisecond response by using Java's Completable Futures and a singleton virtual thread
-  - This basically running the whole RAG process in parallel and not sequential
-
+  - The chat requests/responses are low latency and non-blocking, which is great. I was able to achieve a less than 2000 millisecond response by using Spring's Project Reactor event driven architecture (and a singleton virtual thread)
+  - This basically creates a chain of non-blocking reactive events that execute in the other of the RAG portion explained above
 
 ## Environment setup
 Create a virtual environment for your Python project
