@@ -15,7 +15,7 @@
 
 ### Other things about the backend
   - The chat requests/responses are low latency and non-blocking, which is great. I was able to achieve a less than 2000 millisecond response by using Spring's Project Reactor event driven architecture (and a singleton virtual thread)
-  - This basically creates a chain of non-blocking reactive events that execute in the other of the RAG portion explained above
+  - This basically creates a chain of non-blocking reactive events that execute in the order of the RAG section explained above
 
 ## Environment setup
 Create a virtual environment for your Python project
