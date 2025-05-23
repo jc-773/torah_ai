@@ -1,14 +1,17 @@
 name: Build & Push image to AWS ECR
 
+#specify the name of the branch you want the job to run on
 on:
   push:
     branches:
       - master
 
+#specify the steps you want to take to complete a job
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    #each step should have either name, uses, with, or run
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -16,8 +19,8 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
-          python-version: '3.10'
-
+            python-version: '3.13.1' 
+       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -25,14 +28,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+
       - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v1
 
+        #sets the image uri and builds "." (directory from Dockerfile)
       - name: Build and tag Docker image
         run: |
-          IMAGE_URI=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
+          IMAGE_URI=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest-frontend
           docker build -t $IMAGE_URI .
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
 
       - name: Push image to ECR
-        run: docker push ${{ env.IMAGE_URI }}
+        run: |
+          docker push $IMAGE_URI
