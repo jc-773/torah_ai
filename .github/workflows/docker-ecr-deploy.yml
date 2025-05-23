@@ -28,14 +28,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-
       - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v1
 
-        #sets the image uri and builds "." (directory from Dockerfile)
+        #sets the image uri and builds "." directory from Dockerfile
       - name: Build and tag Docker image
         run: |
-          IMAGE_URI=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
+          IMAGE_URI=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest-frontend
           docker build -t $IMAGE_URI .
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
 

@@ -17,4 +17,14 @@
   - Run the project with the following command - streamlit run main_file.py
   - This will open a tab in your default browser with a chat session
 
-
+## Continuous Integration
+  - Right now, when a change is made to master, I have a YAML job that kicks off with the following steps:
+      - checkout the repo
+      - downloads jdk 23
+      - run the unit tests using the  maven wrapper (quality gate)
+      - if the tests pass, build the project with maven wrapper (quality gate)
+      - sets up AWS credentials
+      - logs into AWS ECR
+      - sets the image URI with ECR repo and ECR registry
+      - builds the app into a docker image pointing at image URI at "." (root directory)
+      - run docker push to deploy the image to AWS ECR tagged with "latest"
