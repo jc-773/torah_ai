@@ -5,6 +5,8 @@ import os
 
 role = st.sidebar.selectbox("Assistant personality", ["Kid-friendly", "Scholarly", "Storyteller"])
 images = st.sidebar.selectbox("Image mode", ["Answers with images", "Answers without images"])
+BACKEND_QUERY_URL = os.getenv("BACKEND_QUERY_URL", "http://localhost:8080/query?role=")
+BACKEND_QUERY_IMAGE_URL = os.getenv("BACKEND_QUERY_IMAGE_URL", "http://localhost:8080/query/image?role=")
 
 def main():
     init_ui()
@@ -40,7 +42,6 @@ def init_session_state():
             {"role": role, "content": "You're a helpful Torah teacher for kids."}
         ]
        
-
 def display_chat_history():
     for msg in st.session_state.messages[1:]:  # 1 skips system prompt
         st.chat_message(msg["role"]).write(msg["content"])
@@ -64,24 +65,30 @@ def handle_chat():
                 st.image(image_response, caption="AI-generated illustration")
         
 def fetch_data(user_input):
-        url = "http://localhost:8080/query?role=" + role
+        url = BACKEND_QUERY_URL + "?role=" + role
+        print(url)
         payload = {
                 "input": user_input,
             }
         headers = {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + os.environ.get("OPENAI_API_KEY")
+            "Authorization": os.environ.get("OPENAI_API_KEY")
         }
 
         response = requests.post(url, json=payload, headers=headers)
         return response.text
     
 def fetch_image_data(queryResponse):
-        url = "http://localhost:8080/query/image?role=" + role
+        url = BACKEND_QUERY_IMAGE_URL + "?role=" + role
+        print(url)
         payload = {
             "queryResponse": queryResponse 
         }
-        response = requests.post(url, json=payload)
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": os.environ.get("OPENAI_API_KEY")
+        }
+        response = requests.post(url, json=payload, headers=headers)
         return response.text
 
 if __name__ == "__main__":
