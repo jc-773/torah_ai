@@ -1,6 +1,7 @@
 # torahAI - front end 
 
 ## Background
+  - Created by Jonathan Clark (github: jc-773)
   - This is a simple streamlit client for torahAI backend
   - Must have an openAI API key for it to work
   - Unless backend jar is running locally this client won't work. I just containerized the backend and will deploy to prod soon...
