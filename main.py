@@ -65,7 +65,8 @@ def handle_chat():
                 st.image(image_response, caption="AI-generated illustration")
         
 def fetch_data(user_input):
-        url = BACKEND_QUERY_URL + "?role=" + role
+        #url = BACKEND_QUERY_URL + "?role=" + role
+        url = "http://172.31.150.232:8081/query"
         print(url)
         payload = {
                 "input": user_input,
@@ -79,7 +80,8 @@ def fetch_data(user_input):
         return response.text
     
 def fetch_image_data(queryResponse):
-        url = BACKEND_QUERY_IMAGE_URL + "?role=" + role
+        #url = BACKEND_QUERY_IMAGE_URL + "?role=" + role
+        url = "http://172.31.150.232:8081/query/image?role=" + role
         print(url)
         payload = {
             "queryResponse": queryResponse 
